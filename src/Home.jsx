@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Code2,
   CheckCircle2,
@@ -11,7 +11,16 @@ import {
 import { modules, playbook, tools } from './data';
 
 function Home() {
+  const navigate = useNavigate();
   const currentTrack = modules[0];
+
+  // "Start the roadmap" jumps into the first module's detail page.
+  const startRoadmap = () => navigate(`/modules/${modules[0].slug}`);
+
+  // "View curriculum" scrolls down to the #modules section on this page.
+  const viewCurriculum = () => {
+    document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <main>
@@ -38,10 +47,12 @@ function Home() {
             A practical platform for founders, beginners, and chaotic little ship-machines who want to turn ideas into deployed products using AI, GitHub, Railway, payments, auth, and actual architecture.
           </p>
           <div className="heroButtons">
-            <button className="primary">
+            <button className="primary" onClick={startRoadmap}>
               Start the roadmap <ArrowRight size={18} />
             </button>
-            <button className="secondary">View curriculum</button>
+            <button className="secondary" onClick={viewCurriculum}>
+              View curriculum
+            </button>
           </div>
         </div>
 
