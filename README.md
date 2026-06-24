@@ -34,29 +34,41 @@ Other scripts:
 
 ```bash
 npm run build    # produce a production build in dist/
-npm run preview  # locally preview the production build
-npm start        # production server: vite preview --host 0.0.0.0 --port $PORT
+npm run preview  # locally preview the static Vite build
+npm start        # production server: node server/index.js (serves dist/ + API)
 ```
+
+> `npm start` runs the Express server, which serves the built app from `dist/`.
+> Run `npm run build` first so `dist/` exists.
 
 Routes:
 
 - `/` — homepage (curriculum, playbook, tools)
 - `/modules/:slug` — module detail page
 
+API:
+
+- `GET /api/health/db` — database connectivity check. Returns `{ "ok": true }`
+  when a trivial query succeeds, otherwise `{ "ok": false, "error": "database_unavailable" }`
+  (HTTP 503). Useful as a deploy/uptime healthcheck.
+
 ## Deploy with Railway
 
-This app deploys to [Railway](https://railway.app) as a static Vite build served by `vite preview`.
+This app deploys to [Railway](https://railway.app) as an Express server that serves the built Vite app from `dist/`.
 
 1. Push this repo to GitHub.
 2. In Railway, create a new project → **Deploy from GitHub repo** and pick this repo.
 3. Railway auto-detects Node and runs:
-   - **Build:** `npm run build`
-   - **Start:** `npm start` (`vite preview --host 0.0.0.0 --port $PORT`)
-4. Railway injects a `$PORT` environment variable at runtime — the `start` script binds to it, and `--host 0.0.0.0` makes the server reachable inside the container. Do **not** hardcode a port.
-5. Once the first deploy succeeds, open the generated Railway domain (or attach a custom domain under **Settings → Networking**).
+   - **Install:** `npm install` → the `postinstall` script runs `prisma generate`.
+   - **Build:** `npm run build` (produces `dist/`).
+   - **Start:** `npm start` (`node server/index.js`).
+4. The server reads `process.env.PORT` (injected by Railway) and binds to `0.0.0.0`. Do **not** hardcode a port.
+5. Add a PostgreSQL database (Railway Postgres plugin or Supabase) and set `DATABASE_URL` / `DIRECT_URL` in **Variables**.
+6. Once the first deploy succeeds, open the generated Railway domain (or attach a custom domain under **Settings → Networking**). Point Railway's healthcheck at `/api/health/db` if you want deploys gated on database connectivity.
 
 Notes:
 
+- `prisma generate` (via `postinstall`) downloads Prisma's engine binaries from `binaries.prisma.sh` — Railway has the network access for this.
 - `npm run build` must succeed for the deploy to go live — check the Railway build logs if a deploy fails.
 - Use the Railway **Deployments → Logs** tab to read runtime output (the same way you'd debug locally).
 
@@ -70,8 +82,9 @@ cp .env.example .env
 
 | Variable       | Purpose                                                                      |
 | -------------- | ---------------------------------------------------------------------------- |
-| `DATABASE_URL` | Pooled connection string for the app's database (used by a future data layer). |
+| `DATABASE_URL` | Pooled connection string for the app's database (used by the server at runtime). |
 | `DIRECT_URL`   | Direct (non-pooled) connection string, for migrations/admin tasks.           |
+| `NODE_ENV`     | `development` or `production`. Set to `production` on Railway.                |
 
 `.env` is gitignored, so never commit real secrets. `$PORT` is provided by Railway automatically and does not belong in `.env`.
 
