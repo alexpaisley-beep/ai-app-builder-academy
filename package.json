@@ -7,7 +7,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@prisma/client": "^7.8.0",
+    "@prisma/client": "6.15.0",
     "@vitejs/plugin-react": "latest",
     "express": "^5.2.1",
     "lucide-react": "latest",
@@ -17,6 +17,6 @@
     "vite": "latest"
   },
   "devDependencies": {
-    "prisma": "^7.8.0"
+    "prisma": "6.15.0"
   }
 }
