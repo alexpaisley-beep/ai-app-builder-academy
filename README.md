@@ -18,26 +18,61 @@ AI App Builder Academy is a learning platform for modern builders. It teaches:
 
 - Vite
 - React
+- React Router
 - CSS
 - Lucide icons
 
-## Run locally
+## Local development
 
 ```bash
-npm install
-npm run dev
+npm install      # install dependencies
+npm run dev      # start the Vite dev server (hot reload) on http://localhost:5173
 ```
 
-## Push to GitHub
+Other scripts:
 
 ```bash
-git init
-git add .
-git commit -m "Initial AI App Builder Academy starter"
-git branch -M main
-git remote add origin <your-github-repo-url>
-git push -u origin main
+npm run build    # produce a production build in dist/
+npm run preview  # locally preview the production build
+npm start        # production server: vite preview --host 0.0.0.0 --port $PORT
 ```
+
+Routes:
+
+- `/` — homepage (curriculum, playbook, tools)
+- `/modules/:slug` — module detail page
+
+## Deploy with Railway
+
+This app deploys to [Railway](https://railway.app) as a static Vite build served by `vite preview`.
+
+1. Push this repo to GitHub.
+2. In Railway, create a new project → **Deploy from GitHub repo** and pick this repo.
+3. Railway auto-detects Node and runs:
+   - **Build:** `npm run build`
+   - **Start:** `npm start` (`vite preview --host 0.0.0.0 --port $PORT`)
+4. Railway injects a `$PORT` environment variable at runtime — the `start` script binds to it, and `--host 0.0.0.0` makes the server reachable inside the container. Do **not** hardcode a port.
+5. Once the first deploy succeeds, open the generated Railway domain (or attach a custom domain under **Settings → Networking**).
+
+Notes:
+
+- `npm run build` must succeed for the deploy to go live — check the Railway build logs if a deploy fails.
+- Use the Railway **Deployments → Logs** tab to read runtime output (the same way you'd debug locally).
+
+## Environment variables
+
+Copy `.env.example` to `.env` for local work, and set values in the Railway dashboard (**Variables**) for production:
+
+```bash
+cp .env.example .env
+```
+
+| Variable       | Purpose                                                                      |
+| -------------- | ---------------------------------------------------------------------------- |
+| `DATABASE_URL` | Pooled connection string for the app's database (used by a future data layer). |
+| `DIRECT_URL`   | Direct (non-pooled) connection string, for migrations/admin tasks.           |
+
+These are placeholders for upcoming work — there is **no database code wired in yet**. `.env` is gitignored, so never commit real secrets. `$PORT` is provided by Railway automatically and does not belong in `.env`.
 
 ## Claude repo-intake prompt
 
