@@ -18,12 +18,10 @@
     "express": "^5.2.1",
     "lucide-react": "latest",
     "pg": "^8.22.0",
+    "prisma": "^7.8.0",
     "react": "latest",
     "react-dom": "latest",
     "react-router-dom": "latest",
     "vite": "latest"
-  },
-  "devDependencies": {
-    "prisma": "^7.8.0"
   }
 }

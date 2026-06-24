@@ -73,10 +73,24 @@ This app deploys to [Railway](https://railway.app) as an Express server that ser
    - **Start:** `npm start` (`node server/index.js`).
 4. The server reads `process.env.PORT` (injected by Railway) and binds to `0.0.0.0`. Do **not** hardcode a port.
 5. Add a PostgreSQL database (Railway Postgres plugin or Supabase) and set `DATABASE_URL` / `DIRECT_URL` in **Variables**.
-6. Once the first deploy succeeds, open the generated Railway domain (or attach a custom domain under **Settings → Networking**). Point Railway's healthcheck at `/api/health/db` if you want deploys gated on database connectivity.
+6. **Apply migrations** before the database-backed APIs will work (see the note below):
+
+   ```bash
+   npm run prisma:deploy   # prisma migrate deploy — production-safe, no schema drift prompts
+   ```
+
+   Run this once against the production database (e.g. from a Railway one-off shell, a `railway run` command, or a deploy/release step). It only applies committed migrations — it never generates new ones or resets data. Optionally seed the content with `npm run prisma:seed`.
+7. Once the first deploy succeeds, open the generated Railway domain (or attach a custom domain under **Settings → Networking**). Point Railway's healthcheck at `/api/health/db` if you want deploys gated on database connectivity.
+
+> **Migrations are not run automatically.** The `postinstall` step only runs
+> `prisma generate` (it never applies migrations). Until you explicitly run
+> `npm run prisma:deploy` against the production database, the tables won't exist
+> and the database-backed endpoints (`/api/courses`, `/api/modules`,
+> `/api/modules/:slug`, and `/api/health/db`) will return `503`.
 
 Notes:
 
+- `prisma` ships in **`dependencies`** (not `devDependencies`) so the `postinstall` `prisma generate` step works even when Railway installs with `NODE_ENV=production` (which omits dev dependencies). `@prisma/client`, `@prisma/adapter-pg`, `pg`, and `dotenv` are likewise runtime dependencies.
 - `prisma generate` (via `postinstall`) downloads Prisma's engine binaries from `binaries.prisma.sh` — Railway has the network access for this.
 - `npm run build` must succeed for the deploy to go live — check the Railway build logs if a deploy fails.
 - Use the Railway **Deployments → Logs** tab to read runtime output (the same way you'd debug locally).
