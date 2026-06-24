@@ -18,26 +18,101 @@ AI App Builder Academy is a learning platform for modern builders. It teaches:
 
 - Vite
 - React
+- React Router
 - CSS
 - Lucide icons
+- Prisma + PostgreSQL (schema scaffold only — not yet wired into the app)
 
-## Run locally
-
-```bash
-npm install
-npm run dev
-```
-
-## Push to GitHub
+## Local development
 
 ```bash
-git init
-git add .
-git commit -m "Initial AI App Builder Academy starter"
-git branch -M main
-git remote add origin <your-github-repo-url>
-git push -u origin main
+npm install      # install dependencies
+npm run dev      # start the Vite dev server (hot reload) on http://localhost:5173
 ```
+
+Other scripts:
+
+```bash
+npm run build    # produce a production build in dist/
+npm run preview  # locally preview the static Vite build
+npm start        # production server: node server/index.js (serves dist/ + API)
+```
+
+> `npm start` runs the Express server, which serves the built app from `dist/`.
+> Run `npm run build` first so `dist/` exists.
+
+Routes:
+
+- `/` — homepage (curriculum, playbook, tools)
+- `/modules/:slug` — module detail page
+
+API:
+
+- `GET /api/health/db` — database connectivity check. Returns `{ "ok": true }`
+  when a trivial query succeeds, otherwise `{ "ok": false, "error": "database_unavailable" }`
+  (HTTP 503). Useful as a deploy/uptime healthcheck.
+
+## Deploy with Railway
+
+This app deploys to [Railway](https://railway.app) as an Express server that serves the built Vite app from `dist/`.
+
+1. Push this repo to GitHub.
+2. In Railway, create a new project → **Deploy from GitHub repo** and pick this repo.
+3. Railway auto-detects Node and runs:
+   - **Install:** `npm install` → the `postinstall` script runs `prisma generate`.
+   - **Build:** `npm run build` (produces `dist/`).
+   - **Start:** `npm start` (`node server/index.js`).
+4. The server reads `process.env.PORT` (injected by Railway) and binds to `0.0.0.0`. Do **not** hardcode a port.
+5. Add a PostgreSQL database (Railway Postgres plugin or Supabase) and set `DATABASE_URL` / `DIRECT_URL` in **Variables**.
+6. Once the first deploy succeeds, open the generated Railway domain (or attach a custom domain under **Settings → Networking**). Point Railway's healthcheck at `/api/health/db` if you want deploys gated on database connectivity.
+
+Notes:
+
+- `prisma generate` (via `postinstall`) downloads Prisma's engine binaries from `binaries.prisma.sh` — Railway has the network access for this.
+- `npm run build` must succeed for the deploy to go live — check the Railway build logs if a deploy fails.
+- Use the Railway **Deployments → Logs** tab to read runtime output (the same way you'd debug locally).
+
+## Environment variables
+
+Copy `.env.example` to `.env` for local work, and set values in the Railway dashboard (**Variables**) for production:
+
+```bash
+cp .env.example .env
+```
+
+| Variable       | Purpose                                                                      |
+| -------------- | ---------------------------------------------------------------------------- |
+| `DATABASE_URL` | Pooled connection string for the app's database (used by the server at runtime). |
+| `DIRECT_URL`   | Direct (non-pooled) connection string, for migrations/admin tasks.           |
+| `NODE_ENV`     | `development` or `production`. Set to `production` on Railway.                |
+
+`.env` is gitignored, so never commit real secrets. `$PORT` is provided by Railway automatically and does not belong in `.env`.
+
+## Database (Prisma + PostgreSQL)
+
+The data layer is scaffolded with [Prisma](https://www.prisma.io) but **not yet connected to the React app** — there is no query code, no client instantiation, and no API routes. This step only establishes the schema.
+
+- Schema lives in [`prisma/schema.prisma`](prisma/schema.prisma).
+- Datasource is PostgreSQL, reading `DATABASE_URL` (pooled) and `DIRECT_URL` (direct) from the environment.
+- Starter models: `User`, `Course`, `Module`, `Lesson`, `UserProgress`.
+
+Setup, once you have a PostgreSQL database (e.g. a Railway Postgres plugin or Supabase):
+
+```bash
+cp .env.example .env             # then fill in DATABASE_URL and DIRECT_URL
+npx prisma generate              # generate the Prisma Client
+npx prisma migrate dev --name init   # create the tables from the schema
+```
+
+Useful commands:
+
+```bash
+npx prisma studio    # browse data in a local GUI
+npx prisma format    # format prisma/schema.prisma
+npx prisma validate  # check the schema is valid
+```
+
+> Note: `prisma generate` / `migrate` download Prisma's engine binaries on first run, which requires outbound network access to `binaries.prisma.sh`. Run them in your own environment when wiring the database up.
 
 ## Claude repo-intake prompt
 

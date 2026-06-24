@@ -221,6 +221,7 @@ main {
 }
 
 .moduleCard {
+  display: block;
   text-align: left;
   min-height: 240px;
   color: #f5f7fb;
@@ -306,8 +307,121 @@ main {
   margin-bottom: 16px;
 }
 
+.brand {
+  cursor: pointer;
+}
+
+/* Module detail page */
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #8fb4ff;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+.moduleDetailHead {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding-bottom: 8px;
+  margin-bottom: 48px;
+}
+
+.moduleDetailIcon {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #4f8cff, #b76cff);
+  box-shadow: 0 18px 50px rgba(79, 140, 255, 0.24);
+}
+
+.moduleDetailHead h1 {
+  margin: 12px 0;
+  font-size: clamp(34px, 5vw, 54px);
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.moduleDetailHead .muted {
+  max-width: 720px;
+  font-size: 18px;
+}
+
+.lessonsHeader {
+  margin-bottom: 22px;
+}
+
+.lessonList {
+  display: grid;
+  gap: 14px;
+}
+
+.lessonCard {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 22px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(181, 199, 255, 0.13);
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.lessonCard:hover {
+  transform: translateY(-3px);
+  border-color: rgba(143, 180, 255, 0.52);
+  background: rgba(255, 255, 255, 0.085);
+}
+
+.lessonNumber {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(143, 180, 255, 0.16);
+  color: #8fb4ff;
+  font-weight: 800;
+}
+
+.lessonBody {
+  flex: 1;
+}
+
+.lessonBody h3 {
+  margin: 0 0 6px;
+  font-size: 19px;
+}
+
+.lessonBody p {
+  margin: 0;
+  color: #b7c0d8;
+  line-height: 1.55;
+}
+
+.lessonMeta {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8fb4ff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 @media (max-width: 860px) {
   .navLinks {
+    display: none;
+  }
+
+  .lessonMeta {
     display: none;
   }
 
