@@ -53,6 +53,13 @@ model Lesson {
   description String?
   time        String?
   order       Int            @default(0)
+  // Rich, beginner-facing teaching content for the lesson. `content` is the
+  // main body (paragraphs separated by blank lines); the list fields hold
+  // structured extras rendered as their own sections in the UI.
+  content     String?
+  aiPrompts   String[]       @default([])
+  checklist   String[]       @default([])
+  warnings    String[]       @default([])
   moduleId    String
   module      Module         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   progress    UserProgress[]

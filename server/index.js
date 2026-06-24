@@ -119,7 +119,11 @@ app.get('/api/modules/:slug', async (req, res) => {
             title: true,
             description: true,
             time: true,
-            order: true
+            order: true,
+            content: true,
+            aiPrompts: true,
+            checklist: true,
+            warnings: true
           }
         }
       }
