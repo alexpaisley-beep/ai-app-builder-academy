@@ -6,12 +6,15 @@
     "start": "vite preview --host 0.0.0.0 --port $PORT"
   },
   "dependencies": {
+    "@prisma/client": "^7.8.0",
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
+    "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest",
     "react-router-dom": "latest",
-    "lucide-react": "latest"
+    "vite": "latest"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "prisma": "^7.8.0"
+  }
 }

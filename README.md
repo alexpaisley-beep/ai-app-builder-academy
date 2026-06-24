@@ -21,6 +21,7 @@ AI App Builder Academy is a learning platform for modern builders. It teaches:
 - React Router
 - CSS
 - Lucide icons
+- Prisma + PostgreSQL (schema scaffold only — not yet wired into the app)
 
 ## Local development
 
@@ -72,7 +73,33 @@ cp .env.example .env
 | `DATABASE_URL` | Pooled connection string for the app's database (used by a future data layer). |
 | `DIRECT_URL`   | Direct (non-pooled) connection string, for migrations/admin tasks.           |
 
-These are placeholders for upcoming work — there is **no database code wired in yet**. `.env` is gitignored, so never commit real secrets. `$PORT` is provided by Railway automatically and does not belong in `.env`.
+`.env` is gitignored, so never commit real secrets. `$PORT` is provided by Railway automatically and does not belong in `.env`.
+
+## Database (Prisma + PostgreSQL)
+
+The data layer is scaffolded with [Prisma](https://www.prisma.io) but **not yet connected to the React app** — there is no query code, no client instantiation, and no API routes. This step only establishes the schema.
+
+- Schema lives in [`prisma/schema.prisma`](prisma/schema.prisma).
+- Datasource is PostgreSQL, reading `DATABASE_URL` (pooled) and `DIRECT_URL` (direct) from the environment.
+- Starter models: `User`, `Course`, `Module`, `Lesson`, `UserProgress`.
+
+Setup, once you have a PostgreSQL database (e.g. a Railway Postgres plugin or Supabase):
+
+```bash
+cp .env.example .env             # then fill in DATABASE_URL and DIRECT_URL
+npx prisma generate              # generate the Prisma Client
+npx prisma migrate dev --name init   # create the tables from the schema
+```
+
+Useful commands:
+
+```bash
+npx prisma studio    # browse data in a local GUI
+npx prisma format    # format prisma/schema.prisma
+npx prisma validate  # check the schema is valid
+```
+
+> Note: `prisma generate` / `migrate` download Prisma's engine binaries on first run, which requires outbound network access to `binaries.prisma.sh`. Run them in your own environment when wiring the database up.
 
 ## Claude repo-intake prompt
 
