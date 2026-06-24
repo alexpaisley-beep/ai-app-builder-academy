@@ -21,7 +21,7 @@ AI App Builder Academy is a learning platform for modern builders. It teaches:
 - React Router
 - CSS
 - Lucide icons
-- Prisma + PostgreSQL (schema scaffold only — not yet wired into the app)
+- Prisma 7 + PostgreSQL (course content stored and served via read-only APIs; UI not yet wired to them)
 
 ## Local development
 
@@ -51,6 +51,15 @@ API:
 - `GET /api/health/db` — database connectivity check. Returns `{ "ok": true }`
   when a trivial query succeeds, otherwise `{ "ok": false, "error": "database_unavailable" }`
   (HTTP 503). Useful as a deploy/uptime healthcheck.
+- `GET /api/courses` — every course with its modules (ordered).
+- `GET /api/modules` — all modules, each with its parent course.
+- `GET /api/modules/:slug` — a single module with its ordered lessons; `404` when
+  the slug doesn't match a module.
+
+> These course-content endpoints are **read-only** and backed by Postgres. The
+> React app still renders its own hardcoded copy of this data (`src/data.js`) for
+> now — nothing in the UI calls these endpoints yet. They fail with `503` and
+> `{ "error": "database_unavailable" }` when the database is unreachable.
 
 ## Deploy with Railway
 
@@ -64,10 +73,24 @@ This app deploys to [Railway](https://railway.app) as an Express server that ser
    - **Start:** `npm start` (`node server/index.js`).
 4. The server reads `process.env.PORT` (injected by Railway) and binds to `0.0.0.0`. Do **not** hardcode a port.
 5. Add a PostgreSQL database (Railway Postgres plugin or Supabase) and set `DATABASE_URL` / `DIRECT_URL` in **Variables**.
-6. Once the first deploy succeeds, open the generated Railway domain (or attach a custom domain under **Settings → Networking**). Point Railway's healthcheck at `/api/health/db` if you want deploys gated on database connectivity.
+6. **Apply migrations** before the database-backed APIs will work (see the note below):
+
+   ```bash
+   npm run prisma:deploy   # prisma migrate deploy — production-safe, no schema drift prompts
+   ```
+
+   Run this once against the production database (e.g. from a Railway one-off shell, a `railway run` command, or a deploy/release step). It only applies committed migrations — it never generates new ones or resets data. Optionally seed the content with `npm run prisma:seed`.
+7. Once the first deploy succeeds, open the generated Railway domain (or attach a custom domain under **Settings → Networking**). Point Railway's healthcheck at `/api/health/db` if you want deploys gated on database connectivity.
+
+> **Migrations are not run automatically.** The `postinstall` step only runs
+> `prisma generate` (it never applies migrations). Until you explicitly run
+> `npm run prisma:deploy` against the production database, the tables won't exist
+> and the database-backed endpoints (`/api/courses`, `/api/modules`,
+> `/api/modules/:slug`, and `/api/health/db`) will return `503`.
 
 Notes:
 
+- `prisma` ships in **`dependencies`** (not `devDependencies`) so the `postinstall` `prisma generate` step works even when Railway installs with `NODE_ENV=production` (which omits dev dependencies). `@prisma/client`, `@prisma/adapter-pg`, `pg`, and `dotenv` are likewise runtime dependencies.
 - `prisma generate` (via `postinstall`) downloads Prisma's engine binaries from `binaries.prisma.sh` — Railway has the network access for this.
 - `npm run build` must succeed for the deploy to go live — check the Railway build logs if a deploy fails.
 - Use the Railway **Deployments → Logs** tab to read runtime output (the same way you'd debug locally).
@@ -90,21 +113,41 @@ cp .env.example .env
 
 ## Database (Prisma + PostgreSQL)
 
-The data layer is scaffolded with [Prisma](https://www.prisma.io) but **not yet connected to the React app** — there is no query code, no client instantiation, and no API routes. This step only establishes the schema.
+The data layer uses [Prisma](https://www.prisma.io) 7 with PostgreSQL. The course
+content is **stored in and read from the database** via the API routes above, but
+the React app is **not yet wired to those routes** — the UI still renders its
+hardcoded copy in `src/data.js`.
 
 - Schema lives in [`prisma/schema.prisma`](prisma/schema.prisma).
-- Datasource is PostgreSQL, reading `DATABASE_URL` (pooled) and `DIRECT_URL` (direct) from the environment.
-- Starter models: `User`, `Course`, `Module`, `Lesson`, `UserProgress`.
+- CLI/migration configuration lives in [`prisma.config.ts`](prisma.config.ts).
+  Prisma 7 moved connection URLs out of the schema: migrations read `DIRECT_URL`
+  (falling back to `DATABASE_URL`) from there, and the running app connects
+  through the PostgreSQL driver adapter (`@prisma/adapter-pg`) in
+  [`server/db.js`](server/db.js) using `DATABASE_URL`.
+- Models: `User`, `Course`, `Module`, `Lesson`, `UserProgress`.
+- The first migration lives in `prisma/migrations/`, and
+  [`prisma/seed.js`](prisma/seed.js) loads the current course/module/lesson
+  content into the database (idempotent — safe to re-run).
 
 Setup, once you have a PostgreSQL database (e.g. a Railway Postgres plugin or Supabase):
 
 ```bash
 cp .env.example .env             # then fill in DATABASE_URL and DIRECT_URL
-npx prisma generate              # generate the Prisma Client
-npx prisma migrate dev --name init   # create the tables from the schema
+npm run prisma:generate          # generate the Prisma Client
+npm run prisma:deploy            # apply existing migrations (production-safe)
+npm run prisma:seed              # load course content into the database
 ```
 
-Useful commands:
+Scripts:
+
+```bash
+npm run prisma:generate   # prisma generate — regenerate the Prisma Client
+npm run prisma:migrate    # prisma migrate dev — create/apply a new migration in dev
+npm run prisma:deploy     # prisma migrate deploy — apply migrations (CI/production)
+npm run prisma:seed       # prisma db seed — run prisma/seed.js
+```
+
+Other useful commands:
 
 ```bash
 npx prisma studio    # browse data in a local GUI
