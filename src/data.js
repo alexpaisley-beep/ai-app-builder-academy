@@ -1,98 +1,68 @@
+// Frontend adapter over the shared, pure-data course content.
+//
+// `courseContent.mjs` is the single source of truth (also consumed by the Node
+// seed script). It carries no React/lucide imports, so here we resolve each
+// module's `icon` string to an actual lucide component for rendering.
+
 import {
-  BrainCircuit,
-  Terminal,
+  Compass,
+  Users,
+  Layers,
+  Wrench,
   GitBranch,
-  Server,
-  ShieldCheck,
-  Rocket
+  Rocket,
+  BrainCircuit
 } from 'lucide-react';
+import {
+  firstCourse,
+  firstModule,
+  allModules,
+  getModule as getModuleData
+} from './courseContent.mjs';
 
-export const modules = [
-  {
-    slug: 'think-like-an-architect',
-    icon: BrainCircuit,
-    title: 'Think Like an Architect',
-    level: 'Foundation',
-    time: '42 min',
-    description: 'Turn a raw idea into screens, data models, user flows, and buildable milestones.'
-  },
-  {
-    slug: 'prompt-like-a-builder',
-    icon: Terminal,
-    title: 'Prompt Like a Builder',
-    level: 'AI Workflow',
-    time: '55 min',
-    description: 'Use Claude and ChatGPT to inspect codebases, plan changes, write tests, and avoid hallucinated garbage.'
-  },
-  {
-    slug: 'github-without-melting',
-    icon: GitBranch,
-    title: 'GitHub Without Melting',
-    level: 'Workflow',
-    time: '38 min',
-    description: 'Clone, branch, commit, push, open PRs, and recover when Git starts acting like a cursed filing cabinet.'
-  },
-  {
-    slug: 'deploy-with-railway',
-    icon: Server,
-    title: 'Deploy With Railway',
-    level: 'Deployment',
-    time: '47 min',
-    description: 'Ship a backend, configure environment variables, connect Postgres, and read logs like an adult.'
-  },
-  {
-    slug: 'auth-payments-and-guardrails',
-    icon: ShieldCheck,
-    title: 'Auth, Payments, and Guardrails',
-    level: 'Real Apps',
-    time: '61 min',
-    description: 'Build the parts that make software real: user access, Stripe flows, approvals, audit logs, and safety checks.'
-  },
-  {
-    slug: 'launch-the-mvp',
-    icon: Rocket,
-    title: 'Launch the MVP',
-    level: 'Shipping',
-    time: '50 min',
-    description: 'Cut scope, test the core path, deploy, collect feedback, and avoid turning your MVP into a museum.'
-  }
-];
+// Map the string icon names used in courseContent.mjs to lucide components.
+// Anything missing falls back to a sensible default so the UI never crashes.
+const ICONS = {
+  Compass,
+  Users,
+  Layers,
+  Wrench,
+  GitBranch,
+  Rocket
+};
 
-export function getModule(slug) {
-  return modules.find((module) => module.slug === slug);
+function withIcon(module) {
+  return { ...module, icon: ICONS[module.icon] || BrainCircuit };
 }
 
-// Placeholder lessons shown on each module detail page until real content lands.
-export const placeholderLessons = [
-  {
-    title: 'Orientation & outcomes',
-    time: '8 min',
-    description: 'What you will be able to build by the end of this module, and how to follow along.'
-  },
-  {
-    title: 'Core concepts walkthrough',
-    time: '14 min',
-    description: 'The mental models and vocabulary you need before touching any code.'
-  },
-  {
-    title: 'Hands-on build',
-    time: '18 min',
-    description: 'Apply the concepts to a real vertical slice, one step at a time.'
-  },
-  {
-    title: 'Ship it & reflect',
-    time: '10 min',
-    description: 'Wire up the finishing touches, review the result, and lock in the workflow.'
-  }
-];
+// Modules of the first real course, in order, with resolved icon components.
+export const modules = firstCourse.modules.map(withIcon);
 
+// The first real course/module — drives the homepage hero.
+export const course = firstCourse;
+export const heroModule = withIcon(firstModule);
+
+export function getModule(slug) {
+  const module = getModuleData(slug);
+  return module ? withIcon(module) : undefined;
+}
+
+// Re-export the interactive Lesson 1 data and shared helpers.
+export {
+  appTypes,
+  lessonPrompts,
+  lessonChecklist,
+  getCourse
+} from './courseContent.mjs';
+
+// Static homepage copy (presentation only — not stored in the database).
 export const playbook = [
-  'Define the user and the painful workflow',
-  'Sketch the data model before touching code',
-  'Make Claude map the repo, then verify manually',
-  'Build one vertical slice end-to-end',
-  'Add logs before production makes you regret everything',
-  'Deploy early, then iterate like a sane person'
+  'Decide what you are building before you build it',
+  'Name one real user and the workflow that hurts them',
+  'Sketch the screens and data model on paper first',
+  'Pick a boring, reliable stack and skip the shiny extras',
+  'Cut scope to one vertical slice you can finish',
+  'Use AI to plan, draft, and debug — then verify it yourself'
 ];
 
 export const tools = [

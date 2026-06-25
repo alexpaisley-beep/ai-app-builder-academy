@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, PlayCircle, Code2 } from 'lucide-react';
-import { getModule, placeholderLessons } from './data';
+import { ArrowLeft, PlayCircle, Code2, Sparkles } from 'lucide-react';
+import { getModule } from './data';
+import { loadSelection, selectionLabel } from './appSelection';
+import Lesson1 from './Lesson1';
 
 function ModuleDetail() {
   const { slug } = useParams();
   const module = getModule(slug);
+
+  // Read the saved app type once so later modules can show the banner too.
+  const appLabel = useMemo(() => selectionLabel(loadSelection()), []);
 
   if (!module) {
     return (
@@ -30,6 +35,9 @@ function ModuleDetail() {
   }
 
   const Icon = module.icon;
+  const lessons = module.lessons || [];
+  const interactiveLesson = lessons.find((lesson) => lesson.interactive);
+  const otherLessons = lessons.filter((lesson) => !lesson.interactive);
 
   return (
     <main>
@@ -48,6 +56,15 @@ function ModuleDetail() {
           <ArrowLeft size={18} /> All modules
         </Link>
 
+        {appLabel && (
+          <div className="buildingBanner" role="status">
+            <Sparkles size={18} />
+            <span>
+              You are building: <strong>{appLabel}</strong>
+            </span>
+          </div>
+        )}
+
         <div className="moduleDetailHead">
           <div className="moduleDetailIcon">
             <Icon size={30} />
@@ -59,15 +76,19 @@ function ModuleDetail() {
           </div>
         </div>
 
+        {interactiveLesson && <Lesson1 />}
+
         <div className="sectionHeader lessonsHeader">
-          <p>Lessons</p>
+          <p>{interactiveLesson ? 'More in this module' : 'Lessons'}</p>
           <h2>What you&apos;ll work through.</h2>
         </div>
 
         <div className="lessonList">
-          {placeholderLessons.map((lesson, index) => (
-            <div className="lessonCard" key={lesson.title}>
-              <div className="lessonNumber">{index + 1}</div>
+          {(interactiveLesson ? otherLessons : lessons).map((lesson, index) => (
+            <div className="lessonCard" key={lesson.slug || lesson.title}>
+              <div className="lessonNumber">
+                {(interactiveLesson ? index + 2 : index + 1)}
+              </div>
               <div className="lessonBody">
                 <h3>{lesson.title}</h3>
                 <p>{lesson.description}</p>
