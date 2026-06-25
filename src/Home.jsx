@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Code2,
   CheckCircle2,
@@ -8,10 +8,18 @@ import {
   Layers,
   ArrowRight
 } from 'lucide-react';
-import { modules, playbook, tools } from './data';
+import { modules, course, heroModule, playbook, tools } from './data';
 
 function Home() {
-  const currentTrack = modules[0];
+  const navigate = useNavigate();
+  const currentTrack = heroModule;
+
+  const scrollToModules = () => {
+    const target = document.getElementById('modules');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <main>
@@ -38,17 +46,23 @@ function Home() {
             A practical platform for founders, beginners, and chaotic little ship-machines who want to turn ideas into deployed products using AI, GitHub, Railway, payments, auth, and actual architecture.
           </p>
           <div className="heroButtons">
-            <button className="primary">
+            <button
+              type="button"
+              className="primary"
+              onClick={() => navigate(`/modules/${heroModule.slug}`)}
+            >
               Start the roadmap <ArrowRight size={18} />
             </button>
-            <button className="secondary">View curriculum</button>
+            <button type="button" className="secondary" onClick={scrollToModules}>
+              View curriculum
+            </button>
           </div>
         </div>
 
         <div className="heroCard">
           <div className="cardHeader">
             <BookOpen size={20} />
-            <span>Current track</span>
+            <span>{course.title}</span>
           </div>
           <h3>{currentTrack.title}</h3>
           <p>{currentTrack.description}</p>
@@ -61,6 +75,9 @@ function Home() {
               <div className="progressFill"></div>
             </div>
           </div>
+          <Link className="heroCardLink" to={`/modules/${heroModule.slug}`}>
+            Start: {currentTrack.title} <ArrowRight size={16} />
+          </Link>
         </div>
       </section>
 

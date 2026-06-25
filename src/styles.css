@@ -416,9 +416,258 @@ main {
   font-weight: 700;
 }
 
+.heroCardLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  color: #8fb4ff;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* "You are building: ___" banner */
+.buildingBanner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  margin-bottom: 28px;
+  border-radius: 14px;
+  background: rgba(143, 180, 255, 0.12);
+  border: 1px solid rgba(143, 180, 255, 0.3);
+  color: #d9e2ff;
+  font-size: 15px;
+}
+
+.buildingBanner svg {
+  color: #8fb4ff;
+  flex-shrink: 0;
+}
+
+.buildingBanner strong {
+  color: #f5f7fb;
+}
+
+/* Interactive Lesson 1 */
+.lesson1 {
+  margin-bottom: 56px;
+}
+
+.lessonIntro {
+  margin-bottom: 24px;
+}
+
+.lessonIntro h2 {
+  margin: 12px 0 14px;
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.lessonIntro .muted {
+  max-width: 720px;
+  font-size: 17px;
+}
+
+.appTypeGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.appTypeCard {
+  text-align: left;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(181, 199, 255, 0.13);
+  color: #f5f7fb;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.appTypeCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(143, 180, 255, 0.45);
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.appTypeCard.selected {
+  border-color: #8fb4ff;
+  background: rgba(143, 180, 255, 0.18);
+  box-shadow: 0 0 0 1px rgba(143, 180, 255, 0.45);
+}
+
+.customIdea {
+  display: grid;
+  gap: 10px;
+  margin: 4px 0 24px;
+}
+
+.customIdea label {
+  color: #d9e2ff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.customIdea input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(181, 199, 255, 0.22);
+  color: #f5f7fb;
+  font-size: 16px;
+}
+
+.customIdea input:focus {
+  outline: none;
+  border-color: #8fb4ff;
+  box-shadow: 0 0 0 1px rgba(143, 180, 255, 0.45);
+}
+
+.appDetails {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin: 8px 0 8px;
+}
+
+.detailCard {
+  padding: 20px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(181, 199, 255, 0.13);
+}
+
+.detailCard.highlight {
+  background: rgba(143, 180, 255, 0.1);
+  border-color: rgba(143, 180, 255, 0.32);
+}
+
+.detailHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.detailHead svg {
+  color: #8fb4ff;
+  flex-shrink: 0;
+}
+
+.detailHead h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.detailCard p {
+  margin: 0;
+  color: #b7c0d8;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.lessonBlock {
+  margin-top: 48px;
+}
+
+.promptHint {
+  margin-bottom: 18px;
+}
+
+.promptGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.promptCard {
+  padding: 20px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(181, 199, 255, 0.13);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.promptHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.promptHead h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(143, 180, 255, 0.16);
+  border: 1px solid rgba(143, 180, 255, 0.3);
+  color: #d9e2ff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 150ms ease;
+}
+
+.copyBtn:hover {
+  background: rgba(143, 180, 255, 0.28);
+}
+
+.promptCard p {
+  margin: 0;
+  color: #b7c0d8;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.checkToggle {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  color: #f5f7fb;
+  font-size: 15px;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.checkToggle.done {
+  border-color: rgba(143, 180, 255, 0.5);
+  background: rgba(143, 180, 255, 0.12);
+}
+
+.checkToggle.done svg {
+  color: #7ee0a8;
+}
+
+.checklistProgress {
+  margin-top: 14px;
+  font-weight: 600;
+}
+
 @media (max-width: 860px) {
   .navLinks {
     display: none;
+  }
+
+  .appTypeGrid,
+  .appDetails,
+  .promptGrid {
+    grid-template-columns: 1fr;
   }
 
   .lessonMeta {
